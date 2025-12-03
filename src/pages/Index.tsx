@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,8 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', ticket: 'Стандарт' });
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
   useEffect(() => {
     const targetDate = new Date('2026-01-04T00:00:00').getTime();
@@ -33,6 +35,25 @@ const Index = () => {
     }, 1000);
     
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set(prev).add(entry.target.id));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    Object.values(sectionRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -281,7 +302,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="program" className="py-20 px-4 bg-white/50 backdrop-blur-sm">
+      <section 
+        id="program" 
+        ref={(el) => (sectionRefs.current['program'] = el)}
+        className={`py-20 px-4 bg-white/50 backdrop-blur-sm transition-all duration-1000 ${
+          visibleSections.has('program') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="container mx-auto">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Программа
@@ -304,7 +331,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="participants" className="py-20 px-4">
+      <section 
+        id="participants" 
+        ref={(el) => (sectionRefs.current['participants'] = el)}
+        className={`py-20 px-4 transition-all duration-1000 ${
+          visibleSections.has('participants') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="container mx-auto">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
             Участники
@@ -330,7 +363,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="gallery" className="py-20 px-4 bg-white/50 backdrop-blur-sm">
+      <section 
+        id="gallery" 
+        ref={(el) => (sectionRefs.current['gallery'] = el)}
+        className={`py-20 px-4 bg-white/50 backdrop-blur-sm transition-all duration-1000 ${
+          visibleSections.has('gallery') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="container mx-auto">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
             Галерея
@@ -357,7 +396,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="tickets" className="py-20 px-4">
+      <section 
+        id="tickets" 
+        ref={(el) => (sectionRefs.current['tickets'] = el)}
+        className={`py-20 px-4 transition-all duration-1000 ${
+          visibleSections.has('tickets') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="container mx-auto">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
             Билеты
@@ -405,7 +450,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="location" className="py-20 px-4">
+      <section 
+        id="location" 
+        ref={(el) => (sectionRefs.current['location'] = el)}
+        className={`py-20 px-4 transition-all duration-1000 ${
+          visibleSections.has('location') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="container mx-auto">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Локация
@@ -458,7 +509,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="contacts" className="py-20 px-4 bg-white/50 backdrop-blur-sm">
+      <section 
+        id="contacts" 
+        ref={(el) => (sectionRefs.current['contacts'] = el)}
+        className={`py-20 px-4 bg-white/50 backdrop-blur-sm transition-all duration-1000 ${
+          visibleSections.has('contacts') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="container mx-auto max-w-4xl">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             Контакты
