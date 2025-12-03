@@ -2,10 +2,18 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [registrationOpen, setRegistrationOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', ticket: 'Стандарт' });
 
   useEffect(() => {
     const targetDate = new Date('2026-01-04T00:00:00').getTime();
@@ -29,7 +37,24 @@ const Index = () => {
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setMobileMenuOpen(false);
   };
+
+  const handleRegistration = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`Спасибо, ${formData.name}! Регистрация успешна. Билет отправлен на ${formData.email}`);
+    setRegistrationOpen(false);
+    setFormData({ name: '', email: '', phone: '', ticket: 'Стандарт' });
+  };
+
+  const gallery = [
+    { id: 1, title: 'Мастер-класс 2025' },
+    { id: 2, title: 'Новая коллекция' },
+    { id: 3, title: 'Nail-арт показ' },
+    { id: 4, title: 'Презентация трендов' },
+    { id: 5, title: 'Фотозона' },
+    { id: 6, title: 'Networking' },
+  ];
 
   const program = [
     { time: '10:00', title: 'Регистрация', description: 'Приветственный кофе и networking' },
@@ -76,7 +101,7 @@ const Index = () => {
               SEMECHKA NOGTI
             </h1>
             <div className="hidden md:flex gap-6">
-              {['program', 'participants', 'tickets', 'location', 'contacts'].map((section) => (
+              {['program', 'participants', 'gallery', 'tickets', 'location', 'contacts'].map((section) => (
                 <button
                   key={section}
                   onClick={() => scrollToSection(section)}
@@ -84,18 +109,55 @@ const Index = () => {
                 >
                   {section === 'program' && 'Программа'}
                   {section === 'participants' && 'Участники'}
+                  {section === 'gallery' && 'Галерея'}
                   {section === 'tickets' && 'Билеты'}
                   {section === 'location' && 'Локация'}
                   {section === 'contacts' && 'Контакты'}
                 </button>
               ))}
             </div>
-            <Button 
-              onClick={() => scrollToSection('tickets')}
-              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
-            >
-              Купить билет
-            </Button>
+            <div className="flex gap-2 items-center">
+              <Button 
+                onClick={() => scrollToSection('tickets')}
+                className="hidden md:flex bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+              >
+                Купить билет
+              </Button>
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Icon name="Menu" size={24} />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] bg-white">
+                  <div className="flex flex-col gap-6 mt-8">
+                    {['program', 'participants', 'gallery', 'tickets', 'location', 'contacts'].map((section) => (
+                      <button
+                        key={section}
+                        onClick={() => scrollToSection(section)}
+                        className="text-left text-lg font-medium hover:text-primary transition-colors"
+                      >
+                        {section === 'program' && 'Программа'}
+                        {section === 'participants' && 'Участники'}
+                        {section === 'gallery' && 'Галерея'}
+                        {section === 'tickets' && 'Билеты'}
+                        {section === 'location' && 'Локация'}
+                        {section === 'contacts' && 'Контакты'}
+                      </button>
+                    ))}
+                    <Button 
+                      onClick={() => {
+                        scrollToSection('tickets');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="bg-gradient-to-r from-primary to-secondary mt-4"
+                    >
+                      Купить билет
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </nav>
@@ -131,14 +193,91 @@ const Index = () => {
             ))}
           </div>
 
-          <Button 
-            size="lg" 
-            onClick={() => scrollToSection('tickets')}
-            className="text-lg px-8 py-6 bg-gradient-to-r from-primary via-secondary to-accent hover:opacity-90 transition-opacity shadow-xl"
-          >
-            Забронировать билет
-            <Icon name="ArrowRight" className="ml-2" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Dialog open={registrationOpen} onOpenChange={setRegistrationOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8 py-6 bg-gradient-to-r from-primary via-secondary to-accent hover:opacity-90 transition-opacity shadow-xl"
+                >
+                  Зарегистрироваться
+                  <Icon name="UserPlus" className="ml-2" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Регистрация на событие
+                  </DialogTitle>
+                  <DialogDescription>
+                    Заполните форму для участия в дне бренда SEMECHKA NOGTI
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleRegistration} className="space-y-4 mt-4">
+                  <div>
+                    <Label htmlFor="name">Имя и фамилия</Label>
+                    <Input 
+                      id="name" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="Анна Иванова"
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      placeholder="anna@example.com"
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Телефон</Label>
+                    <Input 
+                      id="phone" 
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      placeholder="+7 (900) 123-45-67"
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="ticket">Тип билета</Label>
+                    <select
+                      id="ticket"
+                      value={formData.ticket}
+                      onChange={(e) => setFormData({...formData, ticket: e.target.value})}
+                      className="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
+                    >
+                      <option>Стандарт</option>
+                      <option>VIP</option>
+                      <option>Мастер</option>
+                    </select>
+                  </div>
+                  <Button type="submit" className="w-full bg-gradient-to-r from-primary to-secondary">
+                    Отправить заявку
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => scrollToSection('tickets')}
+              className="text-lg px-8 py-6 border-2 border-primary hover:bg-primary/10"
+            >
+              Узнать цены
+              <Icon name="ArrowRight" className="ml-2" />
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -191,7 +330,34 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="tickets" className="py-20 px-4 bg-white/50 backdrop-blur-sm">
+      <section id="gallery" className="py-20 px-4 bg-white/50 backdrop-blur-sm">
+        <div className="container mx-auto">
+          <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
+            Галерея
+          </h3>
+          <p className="text-center text-muted-foreground mb-12 text-lg">
+            Моменты с прошлых событий SEMECHKA NOGTI
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {gallery.map((item) => (
+              <Card 
+                key={item.id} 
+                className="overflow-hidden hover:shadow-2xl transition-all hover:scale-105 group cursor-pointer"
+              >
+                <div className="relative h-64 bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Icon name="Image" size={80} className="text-white/30 group-hover:scale-110 transition-transform" />
+                  <div className="absolute bottom-4 left-4 right-4 text-white font-semibold text-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    {item.title}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="tickets" className="py-20 px-4">
         <div className="container mx-auto">
           <h3 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
             Билеты
